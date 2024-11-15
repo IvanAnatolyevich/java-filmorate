@@ -20,10 +20,10 @@ public class FilmMapper implements RowMapper<Film> {
         LocalDate releaseDate = LocalDate.parse(rs.getString("releaseDate"));
         Duration duration = Duration.ofMinutes(rs.getInt("duration"));
         long like = rs.getLong("like");
-        int rating_id = rs.getInt("rating_id");
-        int genre_id = rs.getInt("genre_id");
+        int rating = rs.getInt("rating_id");
+        int genre = rs.getInt("genre_id");
         return Film.builder().name(name).description(description).releaseDate(releaseDate).duration(duration)
-                .like(like).rating(rating_id).genre(genre_id).build();
+                .like(like).rating(rating).genre(genre).build();
     }
 
 }

@@ -32,7 +32,7 @@ public class MainExceptionHandler {
     }
 
     @ExceptionHandler
-    public Map<String, String> handlerMethodArgumentNotValidException (MethodArgumentNotValidException ex) {
+    public Map<String, String> handlerMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         log.error(ex.getMessage());
         return Map.of("errorCode", "400", "errorMessage",
                 "BAD_REQUEST", "reason", ex.getMessage());

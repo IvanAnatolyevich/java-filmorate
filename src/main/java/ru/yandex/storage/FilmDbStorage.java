@@ -17,7 +17,7 @@ import java.util.HashSet;
 @Repository
 @RequiredArgsConstructor
 @Primary
-public class FilmDbStorage implements FilmStorage{
+public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final FilmMapper filmMapper;
     private final FilmLikeMapper filmikeMapper;
@@ -42,7 +42,7 @@ public class FilmDbStorage implements FilmStorage{
 
         String sqlQuery = "insert into userLikes(id_film, id_user) " +
                 "values (?, ?);";
-        for(Long el: film.getUserLikes()) {
+        for (Long el: film.getUserLikes()) {
             jdbcTemplate.update(sqlQuery, film.getId(), el);
         }
         return film;
@@ -85,7 +85,7 @@ public class FilmDbStorage implements FilmStorage{
         jdbcTemplate.update("delete from userLikes where id = ?;", newFilm.getId());
         sqlQuery = "insert into userLikes(id_film, id_user) " +
                 "values (?, ?);";
-        for(Long el: newFilm.getUserLikes()) {
+        for (Long el: newFilm.getUserLikes()) {
             jdbcTemplate.update(sqlQuery, newFilm.getId(), el);
         }
 

@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
         Set<Long> friends = userStorage.getUsers().get(id).getFriends().stream()
                 .filter(x -> (userStorage.getUsers().get(otherId).getFriends()
                         .stream()
-                        .anyMatch( y -> (y == x))
+                        .anyMatch(y -> (y == x))
                 ))
                 .collect(Collectors.toSet());
         return friends;

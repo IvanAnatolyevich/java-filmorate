@@ -3,11 +3,8 @@ package ru.yandex.service;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.exception.NotFoundException;
 import ru.yandex.model.Film;
-import ru.yandex.model.User;
 import ru.yandex.storage.InMemoryFilmStorage;
 import ru.yandex.storage.InMemoryUserStorage;
 

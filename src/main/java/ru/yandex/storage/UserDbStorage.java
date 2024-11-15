@@ -22,7 +22,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User createUser(User user) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection ->{
+        jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
                     "INSERT INTO my_users(name, email, login, birthday) VALUES(?,?,?,?);",
                     Statement.RETURN_GENERATED_KEYS);

@@ -15,9 +15,9 @@ public class FilmLikeMapper implements RowMapper<Film> {
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         Set<Long> userLikes = new HashSet<>();
         long id = rs.getLong("id_film");
-        while(rs.next()) {
+        while (rs.next()) {
             Long idFilm = rs.getLong("id_film");
-            while(id == idFilm) {
+            while (id == idFilm) {
                 Long idUser = rs.getLong("id_user");
                 userLikes.add(idUser);
             }
