@@ -37,17 +37,16 @@ class FilmoRateApplicationTests {
 
     @Test
     public void testDeleteUser() {
-        User user = User.builder().name("Ivan").email("sid.i744@yandex.ru").login("@ivanLead").id(1L).
-                birthday(LocalDate.parse("2004-04-07")).build();
+        User user = User.builder().name("Ivan").email("sid.i744@yandex.ru").login("@ivanLead").id(1L)
+                .birthday(LocalDate.parse("2004-04-07")).build();
         userStorage.deleteUser(user);
         assertNull(userStorage.allUsers());
     }
 
     @Test
     public void testCreateUser() {
-
-        User user = User.builder().name("Michail").email("sid.i744@yandex.ru").login("@ivanLead").id(2L).
-                birthday(LocalDate.parse("2004-04-07")).build();
+        User user = User.builder().name("Michail").email("sid.i744@yandex.ru").login("@ivanLead").id(2L)
+                        .birthday(LocalDate.parse("2004-04-07")).build();
         Optional<User> userOptional = Optional.of(user);
         assertThat(userOptional)
                 .isPresent()
@@ -58,8 +57,8 @@ class FilmoRateApplicationTests {
 
     @Test
     public void testUpdateUser() {
-        User user = User.builder().name("Michail").email("sid.i744@yandex.ru").login("@ivanLead").id(1L).
-                birthday(LocalDate.parse("2004-04-07")).build();
+        User user = User.builder().name("Michail").email("sid.i744@yandex.ru").login("@ivanLead").id(1L)
+                .birthday(LocalDate.parse("2004-04-07")).build();
         Optional<User> userOptional = Optional.of(userStorage.updateUser(user));
 
         assertThat(userOptional)
