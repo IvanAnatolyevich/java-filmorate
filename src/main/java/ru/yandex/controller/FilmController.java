@@ -1,12 +1,10 @@
 package ru.yandex.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.model.Film;
 import ru.yandex.service.FilmServiceImpl;
 import java.util.Collection;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/films")

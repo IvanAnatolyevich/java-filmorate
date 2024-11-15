@@ -11,11 +11,8 @@ import ru.yandex.storage.mapper.FilmMapper;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Repository
 @RequiredArgsConstructor
@@ -43,9 +40,6 @@ public class FilmDbStorage implements FilmStorage{
         Long generatedId = keyHolder.getKeyAs(Long.class);
         film.setId(generatedId);
 
-//        String sqlQuery = "insert into genreFilm(id_film, id_genre) " +
-//                "values (?, ?);";
-//        jdbcTemplate.update(sqlQuery, film.getId(), film.getGenre());
         String sqlQuery = "insert into userLikes(id_film, id_user) " +
                 "values (?, ?);";
         for(Long el: film.getUserLikes()) {
@@ -94,9 +88,6 @@ public class FilmDbStorage implements FilmStorage{
         for(Long el: newFilm.getUserLikes()) {
             jdbcTemplate.update(sqlQuery, newFilm.getId(), el);
         }
-//        jdbcTemplate.update("update genreFilm set" +
-//                "id_film = ?, id_genre = ? " +
-//                "where id = ?;", newFilm.getId(), newFilm.getGenre());
 
         return newFilm;
     }
@@ -105,7 +96,6 @@ public class FilmDbStorage implements FilmStorage{
     public Film deleteFilm(Film film) {
         String sqlQuery = "delete from ? where id = ?;";
         jdbcTemplate.update(sqlQuery, "films", film.getId());
-//        jdbcTemplate.update(sqlQuery, "genreFilm", film.getId());
         jdbcTemplate.update(sqlQuery, "userLikes", film.getId());
         return film;
     }

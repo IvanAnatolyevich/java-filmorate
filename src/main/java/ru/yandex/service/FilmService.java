@@ -1,7 +1,6 @@
 package ru.yandex.service;
 
 import java.util.Collection;
-import java.util.Set;
 import ru.yandex.model.Film;
 
 public interface FilmService {

@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
-import ru.yandex.exception.ValidationException;
 
 import java.time.Duration;
 import java.time.LocalDate;
