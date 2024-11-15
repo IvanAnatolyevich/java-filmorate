@@ -12,6 +12,7 @@ import java.util.Collection;
 public class FilmController {
 
     private final FilmServiceImpl filmServiceImpl;
+
     @PostMapping
     public Film createFilm(@RequestBody Film film) {
         return filmServiceImpl.createFilm(film);
@@ -71,8 +72,5 @@ public class FilmController {
     public Film getFilmId(@PathVariable Long id) {
         return filmServiceImpl.getFilmId(id);
     }
-
-
-
 
 }

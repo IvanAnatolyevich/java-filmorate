@@ -15,6 +15,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Primary
 public class UserDbStorage implements UserStorage {
+
     private final JdbcTemplate jdbcTemplate;
     private final UserMapper userMapper;
 

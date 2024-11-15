@@ -16,6 +16,7 @@ import java.util.Map;
 @Component
 @Data
 public class InMemoryUserStorage implements UserStorage {
+
     private Map<Long, User> users = new HashMap<>();
 
     @Override

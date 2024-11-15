@@ -11,6 +11,7 @@ import java.util.Set;
 @Data
 @Builder
 public class User {
+
     @NotNull
     private String name;
     private Long id;

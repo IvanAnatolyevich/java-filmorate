@@ -17,6 +17,7 @@ import ru.yandex.model.User;
 public class UserServiceImpl implements UserService {
 
     private final InMemoryUserStorage userStorage;
+
     public User createUser(User user) {
        return userStorage.createUser(user);
     }

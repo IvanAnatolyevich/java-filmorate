@@ -15,6 +15,7 @@ import java.util.Map;
 @Component
 @Data
 public class InMemoryFilmStorage implements FilmStorage {
+
     private Map<Long, Film> films = new HashMap<>();
 
     @Override
@@ -64,6 +65,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         log.error("Ошибка валидации");
         throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
     }
+
     private long getNextId() {
         long currentMaxId = films.keySet()
                 .stream()
