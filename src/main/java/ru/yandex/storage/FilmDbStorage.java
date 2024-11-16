@@ -21,14 +21,14 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final FilmMapper filmMapper;
-    private final FilmLikeMapper filmikeMapper;
+    private final FilmLikeMapper filmLikeMapper;
 
     @Override
     public Film createFilm(Film film) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
-                    "INSERT INTO films(name, description, releaseDate, duration, like, ratin_id) " +
+                    "INSERT INTO films(name, description, releaseDate, duration, like_count, ratin_id) " +
                             "VALUES(?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, film.getName());
             ps.setObject(2, film.getDescription());
@@ -52,6 +52,7 @@ public class FilmDbStorage implements FilmStorage {
                 ps.setLong(1, film.getId());
                 ps.setLong(2, iterator.next());
             }
+
             @Override
             public int getBatchSize() {
                 return film.getUserLikes().size();
@@ -70,7 +71,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film newFilm) {
         String sqlQuery = "update films set" +
-                "name = ?, description = ?, releaseDate = ?, duration = ?, like = ?, rating = ? " +
+                "name = ?, description = ?, releaseDate = ?, duration = ?, like_count = ?, rating = ? " +
                 "where id = ?;";
         jdbcTemplate.update(sqlQuery, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(),
                 newFilm.getDuration(), newFilm.getLike(), newFilm.getRating(), newFilm.getId());
@@ -86,6 +87,7 @@ public class FilmDbStorage implements FilmStorage {
                         ps.setLong(1, newFilm.getId());
                         ps.setLong(2, iterator.next());
                     }
+
                     @Override
                     public int getBatchSize() {
                         return newFilm.getUserLikes().size();
@@ -103,9 +105,10 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, "userLikes", film.getId());
         return film;
     }
+
     public Map<Long, Film> getFilms() {
         Map<Long, Film> all = new HashMap<>();
-        List<Film> obj1 = jdbcTemplate.query("SELECT * FROM userLikes;", filmikeMapper);
+        List<Film> obj1 = jdbcTemplate.query("SELECT * FROM userLikes;", filmLikeMapper);
         List<Film> obj2 =  jdbcTemplate.query("SELECT * FROM films;", filmMapper);
         for (Film film : obj1) {
             for (Film film1 : obj2) {

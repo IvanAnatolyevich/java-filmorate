@@ -1,5 +1,8 @@
-logging.level:
-  org.zalando.logbook: TRACE
+logging:
+  level:
+    org:
+      springframework: DEBUG
+
 spring:
   sql:
     init:

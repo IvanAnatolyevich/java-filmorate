@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.model.Film;
 import ru.yandex.model.User;
 import ru.yandex.storage.mapper.UserMapper;
 
@@ -49,6 +48,7 @@ public class UserDbStorage implements UserStorage {
                         ps.setLong(2, iterator.next());
                         ps.setInt(3, user.getStatus());
                     }
+
                     @Override
                     public int getBatchSize() {
                         return user.getFriends().size();
@@ -85,6 +85,7 @@ public class UserDbStorage implements UserStorage {
                         ps.setLong(2, iterator.next());
                         ps.setInt(3, newUser.getStatus());
                     }
+
                     @Override
                     public int getBatchSize() {
                         return newUser.getFriends().size();
@@ -102,7 +103,7 @@ public class UserDbStorage implements UserStorage {
         return user;
     }
 
-    public Map<Long, User> getMap(){
+    public Map<Long, User> getMap() {
         Map<Long, User> map = new HashMap<>();
         Collection<User> obj = allUsers();
         for (User el: obj) {

@@ -19,7 +19,7 @@ public class FilmMapper implements RowMapper<Film> {
         String description = rs.getString("description");
         LocalDate releaseDate = LocalDate.parse(rs.getString("releaseDate"));
         Duration duration = Duration.ofMinutes(rs.getInt("duration"));
-        long like = rs.getLong("like");
+        long like = rs.getLong("like_count");
         int rating = rs.getInt("rating_id");
         int genre = rs.getInt("genre_id");
         return Film.builder().name(name).description(description).releaseDate(releaseDate).duration(duration)
