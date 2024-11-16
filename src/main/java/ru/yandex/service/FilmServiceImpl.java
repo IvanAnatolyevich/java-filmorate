@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.exception.NotFoundException;
 import ru.yandex.model.Film;
-import ru.yandex.storage.InMemoryFilmStorage;
-import ru.yandex.storage.InMemoryUserStorage;
+import ru.yandex.storage.FilmStorage;
+import ru.yandex.storage.UserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 @Getter
 public class FilmServiceImpl implements FilmService {
 
-    private final InMemoryFilmStorage filmStorage;
-    private final InMemoryUserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     public Film createFilm(Film film) {
         return filmStorage.createFilm(film);
@@ -37,7 +37,7 @@ public class FilmServiceImpl implements FilmService {
 
     public Film addLike(Long id, Long userId) {
         if (filmStorage.getFilms().containsKey(id)) {
-            if (userStorage.getUsers().containsKey(userId)) {
+            if (userStorage.getMap().containsKey(userId)) {
                 filmStorage.getFilms().get(id).getUserLikes().add(userId);
                 return filmStorage.getFilms().get(id);
             }
@@ -48,7 +48,7 @@ public class FilmServiceImpl implements FilmService {
 
     public Film deleteLike(Long id, Long userId) {
         if (filmStorage.getFilms().containsKey(id)) {
-            if (userStorage.getUsers().containsKey(userId)) {
+            if (userStorage.getMap().containsKey(userId)) {
                 if (filmStorage.getFilms().get(id).getUserLikes().contains(userId)) {
                     filmStorage.getFilms().get(id).getUserLikes().remove(userId);
                     return filmStorage.getFilms().get(id);
@@ -62,7 +62,7 @@ public class FilmServiceImpl implements FilmService {
 
     public Collection<String> allRating() {
         Set<String> ratings = new HashSet<>();
-        for (Film film: filmStorage.getFilms().values()) {
+        for (Film film: filmStorage.allFilms()) {
             ratings.add(printRating(film.getId()));
         }
         return ratings;
@@ -78,7 +78,7 @@ public class FilmServiceImpl implements FilmService {
 
     public Collection<String> allGenre() {
         Set<String> genres = new HashSet<>();
-        for (Film film: filmStorage.getFilms().values()) {
+        for (Film film: filmStorage.allFilms()) {
             genres.add(printGenre(film.getId()));
         }
         return genres;
@@ -93,7 +93,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     public Collection<Film> topFilms(Integer count) {
-        return filmStorage.getFilms().values().stream()
+        return filmStorage.allFilms().stream()
                 .sorted((f1, f2) -> Integer.compare(f2.getUserLikes().size(), f1.getUserLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());

@@ -3,6 +3,7 @@ package ru.yandex.storage;
 import ru.yandex.model.Film;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface FilmStorage {
 
@@ -13,4 +14,6 @@ public interface FilmStorage {
     Film updateFilm(Film newFilm);
 
     Film deleteFilm(Film film);
+
+    Map<Long, Film> getFilms();
 }

@@ -2,14 +2,16 @@ package ru.yandex.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.model.Film;
 import ru.yandex.model.User;
 import ru.yandex.storage.mapper.UserMapper;
 
 import java.sql.*;
-import java.util.Collection;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -38,9 +40,21 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "insert into friends(id_user, id_friend, id_status) " +
                 "values (?, ?, ?);";
 
-        for (Long el: user.getFriends()) {
-            jdbcTemplate.update(sqlQuery, user.getId(), el, user.getStatus());
-        }
+        Iterator<Long> iterator = user.getFriends().iterator();
+
+        jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setLong(1, user.getId());
+                        ps.setLong(2, iterator.next());
+                        ps.setInt(3, user.getStatus());
+                    }
+                    @Override
+                    public int getBatchSize() {
+                        return user.getFriends().size();
+                    }
+                }
+        );
         return user;
     }
 
@@ -58,11 +72,25 @@ public class UserDbStorage implements UserStorage {
                 newUser.getBirthday(), newUser.getId());
 
         jdbcTemplate.update("delete from friends where id = ?;", newUser.getId());
-        for (Long el: newUser.getFriends()) {
-            jdbcTemplate.update("insert into friends(id_user, id_friend, id_status) " +
-                            "values (?, ?, ?);",
-                    newUser.getId(), el, newUser.getStatus());
-        }
+
+        String str = "insert into friends(id_user, id_friend, id_status) " +
+                            "values (?, ?, ?);";
+
+        Iterator<Long> iterator = newUser.getFriends().iterator();
+
+        jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setLong(1, newUser.getId());
+                        ps.setLong(2, iterator.next());
+                        ps.setInt(3, newUser.getStatus());
+                    }
+                    @Override
+                    public int getBatchSize() {
+                        return newUser.getFriends().size();
+                    }
+                }
+        );
         return newUser;
     }
 
@@ -72,5 +100,14 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(sqlQuery, "my_users", user.getId());
         jdbcTemplate.update(sqlQuery, "friends", user.getId());
         return user;
+    }
+
+    public Map<Long, User> getMap(){
+        Map<Long, User> map = new HashMap<>();
+        Collection<User> obj = allUsers();
+        for (User el: obj) {
+            map.put(el.getId(), el);
+        }
+        return map;
     }
 }

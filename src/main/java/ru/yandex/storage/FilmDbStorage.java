@@ -2,6 +2,7 @@ package ru.yandex.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -10,9 +11,9 @@ import ru.yandex.storage.mapper.FilmLikeMapper;
 import ru.yandex.storage.mapper.FilmMapper;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -42,36 +43,28 @@ public class FilmDbStorage implements FilmStorage {
 
         String sqlQuery = "insert into userLikes(id_film, id_user) " +
                 "values (?, ?);";
-        for (Long el: film.getUserLikes()) {
-            jdbcTemplate.update(sqlQuery, film.getId(), el);
-        }
+
+        Iterator<Long> iterator = film.getUserLikes().iterator();
+
+        jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                ps.setLong(1, film.getId());
+                ps.setLong(2, iterator.next());
+            }
+            @Override
+            public int getBatchSize() {
+                return film.getUserLikes().size();
+            }
+                }
+        );
         return film;
 
     }
 
     @Override
     public Collection<Film> allFilms() {
-        Collection<Film> all = new HashSet<>();
-        for (Film film : jdbcTemplate.query("SELECT * FROM userLikes;", filmikeMapper)) {
-            for (Film film1 : jdbcTemplate.query("SELECT * FROM films;", filmMapper)) {
-                if (film.getId() == film1.getId()) {
-                    Film film2 = Film.builder()
-                            .id(film1.getId())
-                            .genre(film1.getGenre())
-                            .description(film1.getDescription())
-                            .like(film1.getLike())
-                            .name(film1.getName())
-                            .duration(film1.getDuration())
-                            .releaseDate(film1.getReleaseDate())
-                            .userLikes(film.getUserLikes())
-                            .rating(film1.getRating())
-                            .build();
-                    all.add(film2);
-                }
-                all.add(film1);
-            }
-        }
-        return all;
+        return getFilms().values();
     }
 
     @Override
@@ -85,9 +78,20 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update("delete from userLikes where id = ?;", newFilm.getId());
         sqlQuery = "insert into userLikes(id_film, id_user) " +
                 "values (?, ?);";
-        for (Long el: newFilm.getUserLikes()) {
-            jdbcTemplate.update(sqlQuery, newFilm.getId(), el);
-        }
+
+        Iterator<Long> iterator = newFilm.getUserLikes().iterator();
+        jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setLong(1, newFilm.getId());
+                        ps.setLong(2, iterator.next());
+                    }
+                    @Override
+                    public int getBatchSize() {
+                        return newFilm.getUserLikes().size();
+                    }
+                }
+        );
 
         return newFilm;
     }
@@ -98,5 +102,30 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, "films", film.getId());
         jdbcTemplate.update(sqlQuery, "userLikes", film.getId());
         return film;
+    }
+    public Map<Long, Film> getFilms() {
+        Map<Long, Film> all = new HashMap<>();
+        List<Film> obj1 = jdbcTemplate.query("SELECT * FROM userLikes;", filmikeMapper);
+        List<Film> obj2 =  jdbcTemplate.query("SELECT * FROM films;", filmMapper);
+        for (Film film : obj1) {
+            for (Film film1 : obj2) {
+                if (film.getId() == film1.getId()) {
+                    Film film2 = Film.builder()
+                            .id(film1.getId())
+                            .genre(film1.getGenre())
+                            .description(film1.getDescription())
+                            .like(film1.getLike())
+                            .name(film1.getName())
+                            .duration(film1.getDuration())
+                            .releaseDate(film1.getReleaseDate())
+                            .userLikes(film.getUserLikes())
+                            .rating(film1.getRating())
+                            .build();
+                    all.put(film2.getId(), film2);
+                }
+                all.put(film1.getId(), film1);
+            }
+        }
+        return all;
     }
 }
