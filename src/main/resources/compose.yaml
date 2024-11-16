@@ -1,5 +1,13 @@
-
+version: '3'
 services:
+  web:
+    image: nginx
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 10s
+      retries: 6
   db:
     image: h2database/h2
     container_name: h2
@@ -12,7 +20,8 @@ services:
       - H2_USER=h2user
       - H2_PASSWORD=h2password
     healthcheck:
-      test: pg_isready -q -d H2_DATABASE_FILE -U H2_USER
+      test: pg_isready -q -d $$H2_DATABASE_FILE -U $$H2_USER
       timeout: 5s
       interval: 5s
       retries: 10
+
