@@ -1,13 +1,4 @@
-version: '3'
 services:
-  web:
-    image: nginx
-    restart: on-failure
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 10s
-      timeout: 10s
-      retries: 6
   db:
     image: h2database/h2
     container_name: h2
@@ -16,12 +7,17 @@ services:
     volumes:
       - ./volumes/h2:/h2data
     environment:
-      - H2_DATABASE_FILE=h2db
-      - H2_USER=h2user
-      - H2_PASSWORD=h2password
+      - H2_DATABASE_FILE=java-filmorate
+      - H2_USER=sa
+      - H2_PASSWORD=password
     healthcheck:
       test: pg_isready -q -d $$H2_DATABASE_FILE -U $$H2_USER
       timeout: 5s
       interval: 5s
       retries: 10
-
+  db-init:
+    image: postgres:16.1
+    container_name: db-init
+    depends_on:
+      db:
+        condition: service_healthy
