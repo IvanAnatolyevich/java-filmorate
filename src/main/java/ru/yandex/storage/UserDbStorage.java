@@ -30,7 +30,7 @@ public class UserDbStorage implements UserStorage {
             ps.setObject(1, user.getName());
             ps.setObject(2, user.getEmail());
             ps.setObject(3, user.getLogin());
-            ps.setObject(4, user.getBirthday());
+            ps.setDate(4, java.sql.Date.valueOf(user.getBirthday()));
             return ps;
         }, keyHolder);
         Long generatedId = keyHolder.getKeyAs(Long.class);
@@ -60,7 +60,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> allUsers() {
-        return jdbcTemplate.query("SELECT * FROM my_users;", userMapper);
+        List<User> users = jdbcTemplate.query("SELECT * FROM my_users;", userMapper);
+        for (User user: users) {
+            user.setFriends(getFriends(user.getId()));
+        }
+        return users;
     }
 
     @Override
@@ -97,9 +101,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User deleteUser(User user) {
-        String sqlQuery = "delete from ? where id = ?;";
-        jdbcTemplate.update(sqlQuery, "my_users", user.getId());
-        jdbcTemplate.update(sqlQuery, "friends", user.getId());
+        jdbcTemplate.update("DELETE FROM my_users WHERE id = ?;", user.getId());
+        jdbcTemplate.update("DELETE FROM friends WHERE user_id = ?;", user.getId());
         return user;
     }
 
@@ -110,5 +113,10 @@ public class UserDbStorage implements UserStorage {
             map.put(el.getId(), el);
         }
         return map;
+    }
+
+    public Set<Long> getFriends(Long userId) {
+        String sql = "SELECT friend_id FROM friends WHERE user_id = ?";
+        return new HashSet<>(jdbcTemplate.queryForList(sql, Long.class, userId));
     }
 }

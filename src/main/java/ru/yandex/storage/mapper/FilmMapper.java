@@ -17,7 +17,7 @@ public class FilmMapper implements RowMapper<Film> {
         long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");
-        Duration duration = Duration.ofMinutes(rs.getLong("duration"));
+        Duration duration = Duration.ofMinutes(rs.getInt("duration"));
         LocalDate releaseDate = rs.getObject("releaseDate", LocalDate.class);
         long like = rs.getLong("like_count");
         int rating = rs.getInt("rating_id");

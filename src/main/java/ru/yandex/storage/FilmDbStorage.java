@@ -2,8 +2,10 @@ package ru.yandex.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.model.Film;
@@ -11,6 +13,7 @@ import ru.yandex.storage.mapper.FilmLikeMapper;
 import ru.yandex.storage.mapper.FilmMapper;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
@@ -21,7 +24,6 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final FilmMapper filmMapper;
-    private final FilmLikeMapper filmLikeMapper;
 
     @Override
     public Film createFilm(Film film) {
@@ -100,7 +102,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film deleteFilm(Film film) {
-        jdbcTemplate.update("delete from films where film_id = ?;", film.getId());
+        jdbcTemplate.update("delete from films where id = ?;", film.getId());
         jdbcTemplate.update("delete from userLikes where film_id = ?;", film.getId());
         return film;
     }
@@ -130,19 +132,53 @@ public class FilmDbStorage implements FilmStorage {
 //        }
 //        return all;
 //    }
+//    public Map<Long, Film> getFilms() {
+//        String sql = "SELECT films.id, films.name, films.description, films.releaseDate, films.duration, " +
+//                "films.like_count, films.rating_id, films.genre_id, userLikes.user_id " +
+//                "FROM films " +
+//                "LEFT JOIN userLikes ON films.id = userLikes.film_id;";
+//        List<Film> films = jdbcTemplate.query(sql, filmMapper);
+//
+//        Map<Long, Film> filmMap = new HashMap<>();
+//        for (Film film : films) {
+//            if (!filmMap.containsKey(film.getId())) {
+//                filmMap.put(film.getId(), film);
+//            }
+//        }
+//        return filmMap;
+//    }
     public Map<Long, Film> getFilms() {
-        String sql = "SELECT films.id, films.name, films.description, films.releaseDate, films.duration, " +
-                "films.like_count, films.rating_id, films.genre_id, userLikes.user_id " +
-                "FROM films " +
-                "LEFT JOIN userLikes ON films.id = userLikes.film_id;";
-        List<Film> films = jdbcTemplate.query(sql, filmMapper);
+        // Карта для хранения всех фильмов
+        Map<Long, Film> allFilms = new HashMap<>();
 
-        Map<Long, Film> filmMap = new HashMap<>();
+        // Извлекаем все фильмы
+        List<Film> films = jdbcTemplate.query("SELECT * FROM films;", filmMapper);
+
+        // Для каждого фильма извлекаем лайки пользователей
         for (Film film : films) {
-            if (!filmMap.containsKey(film.getId())) {
-                filmMap.put(film.getId(), film);
-            }
+            // SQL-запрос для извлечения лайков для текущего фильма
+            String sql = "SELECT * FROM userLikes WHERE film_id = ?;";
+
+            // Считываем лайки для фильма с помощью анонимного класса
+            Set<Long> userLikes = new HashSet<>();
+            jdbcTemplate.query(sql, new Object[]{film.getId()}, new ResultSetExtractor<Void>() {
+                @Override
+                public Void extractData(ResultSet rs) throws SQLException, DataAccessException {
+                    // Извлекаем все user_id, поставившие лайк
+                    while (rs.next()) {
+                        userLikes.add(rs.getLong("user_id"));
+                    }
+                    return null; // Возвращаем null, так как ResultSetExtractor не возвращает результат
+                }
+            });
+
+            // Обновляем поле userLikes у объекта Film
+            film.setUserLikes(userLikes);
+
+            // Добавляем фильм в карту
+            allFilms.put(film.getId(), film);
         }
-        return filmMap;
+
+        return allFilms;
     }
 }
