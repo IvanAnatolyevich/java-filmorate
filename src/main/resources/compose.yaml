@@ -1,9 +1,15 @@
 services:
+  web:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
   db:
     image: h2database/h2
     container_name: h2
     ports:
-      - "8080:8080"
+      - "5432:5432"
     volumes:
       - ./volumes/h2:/h2data
     environment:
@@ -15,9 +21,4 @@ services:
       timeout: 5s
       interval: 5s
       retries: 10
-  db-init:
-    image: postgres:16.1
-    container_name: db-init
-    depends_on:
-      db:
-        condition: service_healthy
+
