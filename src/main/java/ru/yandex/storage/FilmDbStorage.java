@@ -28,7 +28,7 @@ public class FilmDbStorage implements FilmStorage {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
-                    "INSERT INTO films(name, description, releaseDate, duration, like_count, ratin_id) " +
+                    "INSERT INTO films(name, description, releaseDate, duration, like_count, rating_id) " +
                             "VALUES(?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, film.getName());
             ps.setObject(2, film.getDescription());
@@ -71,7 +71,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film newFilm) {
         String sqlQuery = "update films set" +
-                "name = ?, description = ?, releaseDate = ?, duration = ?, like_count = ?, rating = ? " +
+                "name = ?, description = ?, releaseDate = ?, duration = ?, like_count = ?, rating_id = ? " +
                 "where id = ?;";
         jdbcTemplate.update(sqlQuery, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(),
                 newFilm.getDuration(), newFilm.getLike(), newFilm.getRating(), newFilm.getId());
@@ -100,35 +100,49 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film deleteFilm(Film film) {
-        String sqlQuery = "delete from ? where id = ?;";
-        jdbcTemplate.update(sqlQuery, "films", film.getId());
-        jdbcTemplate.update(sqlQuery, "userLikes", film.getId());
+        jdbcTemplate.update("delete from films where film_id = ?;", film.getId());
+        jdbcTemplate.update("delete from userLikes where film_id = ?;", film.getId());
         return film;
     }
 
+    //    public Map<Long, Film> getFilms() {
+//        Map<Long, Film> all = new HashMap<>();
+//        List<Film> obj1 = jdbcTemplate.query("SELECT * FROM userLikes;", filmLikeMapper);
+//        List<Film> obj2 =  jdbcTemplate.query("SELECT * FROM films;", filmMapper);
+//        for (Film film : obj1) {
+//            for (Film film1 : obj2) {
+//                if (film.getId() == film1.getId()) {
+//                    Film film2 = Film.builder()
+//                            .id(film1.getId())
+//                            .genre(film1.getGenre())
+//                            .description(film1.getDescription())
+//                            .like(film1.getLike())
+//                            .name(film1.getName())
+//                            .duration(film1.getDuration())
+//                            .releaseDate(film1.getReleaseDate())
+//                            .userLikes(film.getUserLikes())
+//                            .rating(film1.getRating())
+//                            .build();
+//                    all.put(film2.getId(), film2);
+//                }
+//                all.put(film1.getId(), film1);
+//            }
+//        }
+//        return all;
+//    }
     public Map<Long, Film> getFilms() {
-        Map<Long, Film> all = new HashMap<>();
-        List<Film> obj1 = jdbcTemplate.query("SELECT * FROM userLikes;", filmLikeMapper);
-        List<Film> obj2 =  jdbcTemplate.query("SELECT * FROM films;", filmMapper);
-        for (Film film : obj1) {
-            for (Film film1 : obj2) {
-                if (film.getId() == film1.getId()) {
-                    Film film2 = Film.builder()
-                            .id(film1.getId())
-                            .genre(film1.getGenre())
-                            .description(film1.getDescription())
-                            .like(film1.getLike())
-                            .name(film1.getName())
-                            .duration(film1.getDuration())
-                            .releaseDate(film1.getReleaseDate())
-                            .userLikes(film.getUserLikes())
-                            .rating(film1.getRating())
-                            .build();
-                    all.put(film2.getId(), film2);
-                }
-                all.put(film1.getId(), film1);
+        String sql = "SELECT films.id, films.name, films.description, films.releaseDate, films.duration, " +
+                "films.like_count, films.rating_id, films.genre_id, userLikes.user_id " +
+                "FROM films " +
+                "LEFT JOIN userLikes ON films.id = userLikes.film_id;";
+        List<Film> films = jdbcTemplate.query(sql, filmMapper);
+
+        Map<Long, Film> filmMap = new HashMap<>();
+        for (Film film : films) {
+            if (!filmMap.containsKey(film.getId())) {
+                filmMap.put(film.getId(), film);
             }
         }
-        return all;
+        return filmMap;
     }
 }

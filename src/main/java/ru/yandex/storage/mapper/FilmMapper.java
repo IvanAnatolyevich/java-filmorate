@@ -17,12 +17,12 @@ public class FilmMapper implements RowMapper<Film> {
         long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");
-        LocalDate releaseDate = LocalDate.parse(rs.getString("releaseDate"));
-        Duration duration = Duration.ofMinutes(rs.getInt("duration"));
+        Duration duration = Duration.ofMinutes(rs.getLong("duration"));
+        LocalDate releaseDate = rs.getObject("releaseDate", LocalDate.class);
         long like = rs.getLong("like_count");
         int rating = rs.getInt("rating_id");
         int genre = rs.getInt("genre_id");
-        return Film.builder().name(name).description(description).releaseDate(releaseDate).duration(duration)
+        return Film.builder().name(name).id(id).description(description).releaseDate(releaseDate).duration(duration)
                 .like(like).rating(rating).genre(genre).build();
     }
 
