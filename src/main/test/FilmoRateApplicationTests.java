@@ -67,5 +67,4 @@ class FilmoRateApplicationTests {
                         assertThat(el).hasFieldOrPropertyWithValue("id", 1)
                 );
     }
-
 }
