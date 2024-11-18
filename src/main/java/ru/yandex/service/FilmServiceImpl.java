@@ -93,7 +93,11 @@ public class FilmServiceImpl implements FilmService {
     }
 
     public Collection<Film> topFilms(Integer count) {
-        return filmStorage.allFilms().stream()
+        List<Film> allFilms = (List<Film>) filmStorage.allFilms();
+        if (count > allFilms.size()) {
+            count = allFilms.size();
+        }
+        return allFilms.stream()
                 .sorted((f1, f2) -> Integer.compare(f2.getUserLikes().size(), f1.getUserLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
