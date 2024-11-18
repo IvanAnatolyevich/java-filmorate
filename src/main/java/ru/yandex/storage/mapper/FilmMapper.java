@@ -6,7 +6,6 @@ import ru.yandex.model.Film;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.time.LocalDate;
 
 @Component
