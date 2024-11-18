@@ -29,14 +29,16 @@ public class FilmDbStorage implements FilmStorage {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
-                    "INSERT INTO films(name, description, releaseDate, duration, like_count, rating_id) " +
-                            "VALUES(?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
+                    "INSERT INTO films(name, description, releaseDate," +
+                            " duration, like_count, rating_id, genre_id) " +
+                            "VALUES(?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, film.getName());
             ps.setObject(2, film.getDescription());
             ps.setObject(3, film.getReleaseDate());
             ps.setObject(4, film.getDuration());
             ps.setObject(5, film.getLike());
             ps.setObject(6, film.getRating());
+            ps.setObject(7, film.getGenre());
             return ps;
         }, keyHolder);
         Long generatedId = keyHolder.getKeyAs(Long.class);

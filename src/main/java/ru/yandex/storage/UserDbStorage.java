@@ -10,6 +10,7 @@ import ru.yandex.model.User;
 import ru.yandex.storage.mapper.UserMapper;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.*;
 
 @Repository
@@ -38,6 +39,8 @@ public class UserDbStorage implements UserStorage {
 
         String sqlQuery = "insert into friends(id_user, id_friend, id_status) " +
                 "values (?, ?, ?);";
+
+        System.out.println("User: " + user.getId());
 
         if (user.getFriends() != null) {
             Iterator<Long> iterator = user.getFriends().iterator();
@@ -108,6 +111,11 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update("DELETE FROM my_users WHERE id = ?;", user.getId());
         jdbcTemplate.update("DELETE FROM friends WHERE user_id = ?;", user.getId());
         return user;
+    }
+
+    @Override
+    public User getUserId(Long id) {
+        return getMap().get(id);
     }
 
     public Map<Long, User> getMap() {

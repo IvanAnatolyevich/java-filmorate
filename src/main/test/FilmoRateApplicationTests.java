@@ -15,8 +15,9 @@ import ru.yandex.storage.UserDbStorage;
 import ru.yandex.storage.mapper.FilmMapper;
 import ru.yandex.storage.mapper.UserMapper;
 
-import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -93,7 +94,7 @@ class FilmoRateApplicationTests  {
                 .name("Test Film")
                 .description("Test Description")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120)
                 .genre(1)
                 .rating(1)
                 .build();
@@ -109,7 +110,7 @@ class FilmoRateApplicationTests  {
                 .name("Test Film")
                 .description("Test Description")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120)
                 .genre(1)
                 .rating(1)
                 .build();
@@ -127,7 +128,7 @@ class FilmoRateApplicationTests  {
                 .name("Test Film")
                 .description("Test Description")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120)
                 .genre(1)
                 .rating(1)
                 .build();
@@ -137,5 +138,74 @@ class FilmoRateApplicationTests  {
 
         List<Film> films = (List<Film>) filmDbStorage.allFilms();
         assertTrue(films.isEmpty());
+    }
+
+    @Test
+    void testGetUserId1() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .login("test_login")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .build();
+        userDbStorage.createUser(user);
+        User user1 = userDbStorage.getUserId(4l);
+
+                assertEquals("Test User", user1.getName());
+    }
+
+    @Test
+    void getAllUsers() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .login("test_login")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .friends(new HashSet<>())
+                .build();
+        userDbStorage.createUser(user);
+        User user1 = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .login("test_login")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .friends(new HashSet<>())
+                .build();
+        userDbStorage.createUser(user1);
+        List<User> users = (List<User>) userDbStorage.allUsers();
+        List<User> testUsers = new ArrayList<>();
+        testUsers.add(user);
+        testUsers.add(user1);
+        Assertions.assertArrayEquals(testUsers.toArray(), users.toArray());
+    }
+    @Test
+    void getAllFilms() {
+        Film film = Film.builder()
+                .name("Test Film")
+                .description("Test Description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(120)
+                .genre(1)
+                .rating(1)
+                .like(0L)
+                .userLikes(new HashSet<>())
+                .build();
+        filmDbStorage.createFilm(film);
+        Film film1 = Film.builder()
+                .name("Test Film")
+                .description("Test Description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(120)
+                .genre(1)
+                .rating(1)
+                .like(0L)
+                .userLikes(new HashSet<>())
+                .build();
+        filmDbStorage.createFilm(film1);
+        List<Film> films = (List<Film>) filmDbStorage.allFilms();
+        List<Film> testFilms = new ArrayList<>();
+        testFilms.add(film);
+        testFilms.add(film1);
+        Assertions.assertArrayEquals(testFilms.toArray(), films.toArray());
     }
 }

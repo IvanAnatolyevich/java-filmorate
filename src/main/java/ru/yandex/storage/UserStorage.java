@@ -16,4 +16,7 @@ public interface UserStorage {
     User deleteUser(User user);
 
     Map<Long, User> getMap();
-}
+
+     User getUserId(Long id);
+
+    }

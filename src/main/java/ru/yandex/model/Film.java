@@ -28,7 +28,7 @@ public class Film {
     @NotNull
     private LocalDate releaseDate;
     @Min(1)
-    private Duration duration;
+    private int duration;
     private Long like;
     private Set<Long> userLikes;
     private int genre;

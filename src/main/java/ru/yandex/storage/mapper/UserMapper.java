@@ -19,6 +19,6 @@ public class UserMapper implements RowMapper<User> {
         String email = rs.getString("email");
         String login = rs.getString("login");
         LocalDate birthday = rs.getObject("birthday", LocalDate.class);
-        return User.builder().id(id).email(email).login(login).birthday(birthday).build();
+        return User.builder().id(id).name(name).email(email).login(login).birthday(birthday).build();
     }
 }

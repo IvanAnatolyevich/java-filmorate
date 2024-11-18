@@ -81,6 +81,6 @@ public class UserServiceImpl implements UserService {
     }
 
     public User getUserId(Long id) {
-        return userStorage.getMap().get(id);
+        return userStorage.getUserId(id);
     }
 }
