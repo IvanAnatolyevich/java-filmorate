@@ -22,14 +22,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@JdbcTest // Подключение тестовой базы H2
+@JdbcTest
 @Import({UserDbStorage.class, FilmDbStorage.class, UserMapper.class, FilmMapper.class})
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @ContextConfiguration(classes = App.class)
 @DirtiesContext
 
-class FilmoRateApplicationTests  {
+class FilmoRateApplicationTests {
 
     private final UserDbStorage userDbStorage;
     private final FilmDbStorage filmDbStorage;
@@ -37,7 +37,6 @@ class FilmoRateApplicationTests  {
 
     @Test
     void contextLoads() {
-        // Проверяем доступность контекста Spring и тестовой базы данных
         Long userCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM my_users", Long.class);
         System.out.println("Количество пользователей: " + userCount);
     }
@@ -149,7 +148,7 @@ class FilmoRateApplicationTests  {
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build();
         userDbStorage.createUser(user);
-        User user1 = userDbStorage.getUserId(4l);
+        User user1 = userDbStorage.getUserId(4L);
 
                 assertEquals("Test User", user1.getName());
     }
@@ -178,6 +177,7 @@ class FilmoRateApplicationTests  {
         testUsers.add(user1);
         Assertions.assertArrayEquals(testUsers.toArray(), users.toArray());
     }
+    
     @Test
     void getAllFilms() {
         Film film = Film.builder()
