@@ -177,7 +177,8 @@ class FilmoRateApplicationTests {
         testUsers.add(user1);
         Assertions.assertArrayEquals(testUsers.toArray(), users.toArray());
     }
-    
+
+
     @Test
     void getAllFilms() {
         Film film = Film.builder()
@@ -194,7 +195,7 @@ class FilmoRateApplicationTests {
         Film film1 = Film.builder()
                 .name("Test Film")
                 .description("Test Description")
-                .releaseDate(LocalDate.of(2000, 1, 1))
+                .releaseDate(LocalDate.of(2000, 2, 1))
                 .duration(120)
                 .genre(1)
                 .rating(1)
