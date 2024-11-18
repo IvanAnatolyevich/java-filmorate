@@ -1,70 +1,141 @@
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.jdbc.Sql;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import ru.yandex.App;
+import ru.yandex.model.Film;
 import ru.yandex.model.User;
+import ru.yandex.storage.FilmDbStorage;
 import ru.yandex.storage.UserDbStorage;
+import ru.yandex.storage.mapper.FilmMapper;
+import ru.yandex.storage.mapper.UserMapper;
 
+import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-@JdbcTest
+@JdbcTest // Подключение тестовой базы H2
+@Import({UserDbStorage.class, FilmDbStorage.class, UserMapper.class, FilmMapper.class})
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({UserDbStorage.class})
-@Sql({"schema.sql", "test-data.sql"})
-class FilmoRateApplicationTests {
-    private final UserDbStorage userStorage;
+@ContextConfiguration(classes = App.class)
+@DirtiesContext
+
+class FilmoRateApplicationTests  {
+
+    private final UserDbStorage userDbStorage;
+    private final FilmDbStorage filmDbStorage;
+    private final JdbcTemplate jdbcTemplate;
 
     @Test
-    public void testAllUsers() {
-
-        Optional<Collection<User>> userOptional = Optional.of(userStorage.allUsers());
-
-        assertThat(userOptional)
-                .isPresent()
-                .hasValueSatisfying(users ->
-                        assertThat(users).hasFieldOrPropertyWithValue("id", 1)
-                );
+    void contextLoads() {
+        // Проверяем доступность контекста Spring и тестовой базы данных
+        Long userCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM my_users", Long.class);
+        System.out.println("Количество пользователей: " + userCount);
     }
 
     @Test
-    public void testDeleteUser() {
-        User user = User.builder().name("Ivan").email("sid.i744@yandex.ru").login("@ivanLead").id(1L)
-                .birthday(LocalDate.parse("2004-04-07")).build();
-        userStorage.deleteUser(user);
-        assertNull(userStorage.allUsers());
+    void testCreateUser() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .login("test_login")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .build();
+        User createdUser = userDbStorage.createUser(user);
+
+        assertNotNull(createdUser.getId());
+        assertEquals("Test User", createdUser.getName());
     }
 
     @Test
-    public void testCreateUser() {
-        User user = User.builder().name("Michail").email("sid.i744@yandex.ru").login("@ivanLead").id(2L)
-                        .birthday(LocalDate.parse("2004-04-07")).build();
-        Optional<User> userOptional = Optional.of(user);
-        assertThat(userOptional)
-                .isPresent()
-                .hasValueSatisfying(el ->
-                        assertThat(el).hasFieldOrPropertyWithValue("id", 2)
-                );
+    void testUpdateUser() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .login("test_login")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .build();
+        User createdUser = userDbStorage.createUser(user);
+
+        createdUser.setName("Updated Name");
+        User updatedUser = userDbStorage.updateUser(createdUser);
+
+        assertEquals("Updated Name", updatedUser.getName());
     }
 
     @Test
-    public void testUpdateUser() {
-        User user = User.builder().name("Michail").email("sid.i744@yandex.ru").login("@ivanLead").id(1L)
-                .birthday(LocalDate.parse("2004-04-07")).build();
-        Optional<User> userOptional = Optional.of(userStorage.updateUser(user));
+    void testDeleteUser() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .login("test_login")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .build();
+        User createdUser = userDbStorage.createUser(user);
 
-        assertThat(userOptional)
-                .isPresent()
-                .hasValueSatisfying(el ->
-                        assertThat(el).hasFieldOrPropertyWithValue("id", 1)
-                );
+        userDbStorage.deleteUser(createdUser);
+
+        List<User> users = (List<User>) userDbStorage.allUsers();
+        assertTrue(users.isEmpty());
+    }
+
+    @Test
+    void testCreateFilm() {
+        Film film = Film.builder()
+                .name("Test Film")
+                .description("Test Description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(Duration.ofMinutes(120))
+                .genre(1)
+                .rating(1)
+                .build();
+        Film createdFilm = filmDbStorage.createFilm(film);
+
+        assertNotNull(createdFilm.getId());
+        assertEquals("Test Film", createdFilm.getName());
+    }
+
+    @Test
+    void testUpdateFilm() {
+        Film film = Film.builder()
+                .name("Test Film")
+                .description("Test Description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(Duration.ofMinutes(120))
+                .genre(1)
+                .rating(1)
+                .build();
+        Film createdFilm = filmDbStorage.createFilm(film);
+
+        createdFilm.setName("Updated Film");
+        Film updatedFilm = filmDbStorage.updateFilm(createdFilm);
+
+        assertEquals("Updated Film", updatedFilm.getName());
+    }
+
+    @Test
+    void testDeleteFilm() {
+        Film film = Film.builder()
+                .name("Test Film")
+                .description("Test Description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(Duration.ofMinutes(120))
+                .genre(1)
+                .rating(1)
+                .build();
+        Film createdFilm = filmDbStorage.createFilm(film);
+
+        filmDbStorage.deleteFilm(createdFilm);
+
+        List<Film> films = (List<Film>) filmDbStorage.allFilms();
+        assertTrue(films.isEmpty());
     }
 }

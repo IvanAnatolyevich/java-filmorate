@@ -9,7 +9,7 @@ rating VARCHAR(5)
 );
 
 CREATE TABLE IF NOT EXISTS my_users (
-id INTEGER PRIMARY KEY AUTO_INCREMENT,
+id BIGINT  PRIMARY KEY AUTO_INCREMENT,
 name VARCHAR(50) NOT NULL,
 email VARCHAR(50) NOT NULL,
 login VARCHAR(50) NOT NULL,
@@ -17,12 +17,12 @@ birthday DATE
 );
 
 CREATE TABLE IF NOT EXISTS films (
-id INTEGER PRIMARY KEY AUTO_INCREMENT,
+id BIGINT  PRIMARY KEY AUTO_INCREMENT,
 name VARCHAR(50) NOT NULL,
 description VARCHAR(200) NOT NULL,
 releaseDate DATE,
 duration INTEGER,
-like_count INTEGER,
+like_count BIGINT ,
 genre_id INTEGER REFERENCES genre (id) ON DELETE CASCADE,
 rating_id INTEGER REFERENCES rating (id) ON DELETE CASCADE
 );
@@ -33,14 +33,14 @@ status VARCHAR(20)
 );
 
 CREATE TABLE IF NOT EXISTS userLikes (
-user_id INTEGER REFERENCES my_users (id),
-film_id INTEGER REFERENCES films (id),
+user_id BIGINT  REFERENCES my_users (id),
+film_id BIGINT  REFERENCES films (id),
 PRIMARY KEY (user_id, film_id)
 );
 
 CREATE TABLE IF NOT EXISTS friends (
-user_id INTEGER NOT NULL REFERENCES my_users (id),
-friend_id INTEGER NOT NULL REFERENCES my_users (id),
+user_id BIGINT  NOT NULL REFERENCES my_users (id),
+friend_id BIGINT  NOT NULL REFERENCES my_users (id),
 status_id INTEGER NOT NULL REFERENCES status (id),
 PRIMARY KEY (user_id, friend_id)
 );

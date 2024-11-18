@@ -45,56 +45,63 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "insert into userLikes(id_film, id_user) " +
                 "values (?, ?);";
 
-        Iterator<Long> iterator = film.getUserLikes().iterator();
+        if (film.getUserLikes() != null) {
 
-        jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ps.setLong(1, film.getId());
-                ps.setLong(2, iterator.next());
-            }
+            Iterator<Long> iterator = film.getUserLikes().iterator();
 
-            @Override
-            public int getBatchSize() {
-                return film.getUserLikes().size();
-            }
-                }
-        );
+            jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
+                        @Override
+                        public void setValues(PreparedStatement ps, int i) throws SQLException {
+                            ps.setLong(1, film.getId());
+                            ps.setLong(2, iterator.next());
+                        }
+
+                        @Override
+                        public int getBatchSize() {
+                            return film.getUserLikes().size();
+                        }
+                    }
+            );
+        }
         return film;
 
     }
 
     @Override
     public Collection<Film> allFilms() {
-        return getFilms().values();
+        List<Film> films = new ArrayList<>();
+        films.addAll(getFilms().values());
+        return films;
     }
 
     @Override
     public Film updateFilm(Film newFilm) {
-        String sqlQuery = "update films set" +
+        String sqlQuery = "update films set " +
                 "name = ?, description = ?, releaseDate = ?, duration = ?, like_count = ?, rating_id = ? " +
                 "where id = ?;";
         jdbcTemplate.update(sqlQuery, newFilm.getName(), newFilm.getDescription(), newFilm.getReleaseDate(),
                 newFilm.getDuration(), newFilm.getLike(), newFilm.getRating(), newFilm.getId());
 
-        jdbcTemplate.update("delete from userLikes where id = ?;", newFilm.getId());
+        jdbcTemplate.update("delete from userLikes where film_id = ?;", newFilm.getId());
         sqlQuery = "insert into userLikes(id_film, id_user) " +
                 "values (?, ?);";
 
-        Iterator<Long> iterator = newFilm.getUserLikes().iterator();
-        jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
-                    @Override
-                    public void setValues(PreparedStatement ps, int i) throws SQLException {
-                        ps.setLong(1, newFilm.getId());
-                        ps.setLong(2, iterator.next());
-                    }
+        if (newFilm.getUserLikes() != null) {
+            Iterator<Long> iterator = newFilm.getUserLikes().iterator();
+            jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
+                        @Override
+                        public void setValues(PreparedStatement ps, int i) throws SQLException {
+                            ps.setLong(1, newFilm.getId());
+                            ps.setLong(2, iterator.next());
+                        }
 
-                    @Override
-                    public int getBatchSize() {
-                        return newFilm.getUserLikes().size();
+                        @Override
+                        public int getBatchSize() {
+                            return newFilm.getUserLikes().size();
+                        }
                     }
-                }
-        );
+            );
+        }
 
         return newFilm;
     }

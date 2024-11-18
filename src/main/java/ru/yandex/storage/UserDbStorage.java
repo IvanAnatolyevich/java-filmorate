@@ -39,22 +39,24 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "insert into friends(id_user, id_friend, id_status) " +
                 "values (?, ?, ?);";
 
-        Iterator<Long> iterator = user.getFriends().iterator();
+        if (user.getFriends() != null) {
+            Iterator<Long> iterator = user.getFriends().iterator();
 
-        jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
-                    @Override
-                    public void setValues(PreparedStatement ps, int i) throws SQLException {
-                        ps.setLong(1, user.getId());
-                        ps.setLong(2, iterator.next());
-                        ps.setInt(3, user.getStatus());
-                    }
+            jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
+                        @Override
+                        public void setValues(PreparedStatement ps, int i) throws SQLException {
+                            ps.setLong(1, user.getId());
+                            ps.setLong(2, iterator.next());
+                            ps.setInt(3, user.getStatus());
+                        }
 
-                    @Override
-                    public int getBatchSize() {
-                        return user.getFriends().size();
+                        @Override
+                        public int getBatchSize() {
+                            return user.getFriends().size();
+                        }
                     }
-                }
-        );
+            );
+        }
         return user;
     }
 
@@ -69,33 +71,35 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User updateUser(User newUser) {
-        String sqlQuery = "update my_users set" +
+        String sqlQuery = "update my_users set " +
                 "name = ?, email = ?, login = ?, birthday = ? " +
                 "where id = ?;";
         jdbcTemplate.update(sqlQuery, newUser.getName(), newUser.getEmail(), newUser.getLogin(),
                 newUser.getBirthday(), newUser.getId());
 
-        jdbcTemplate.update("delete from friends where id = ?;", newUser.getId());
+        jdbcTemplate.update("delete from friends where user_id = ?;", newUser.getId());
 
         String str = "insert into friends(id_user, id_friend, id_status) " +
                             "values (?, ?, ?);";
 
-        Iterator<Long> iterator = newUser.getFriends().iterator();
+        if (newUser.getFriends() != null) {
+            Iterator<Long> iterator = newUser.getFriends().iterator();
 
-        jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
-                    @Override
-                    public void setValues(PreparedStatement ps, int i) throws SQLException {
-                        ps.setLong(1, newUser.getId());
-                        ps.setLong(2, iterator.next());
-                        ps.setInt(3, newUser.getStatus());
-                    }
+            jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
+                        @Override
+                        public void setValues(PreparedStatement ps, int i) throws SQLException {
+                            ps.setLong(1, newUser.getId());
+                            ps.setLong(2, iterator.next());
+                            ps.setInt(3, newUser.getStatus());
+                        }
 
-                    @Override
-                    public int getBatchSize() {
-                        return newUser.getFriends().size();
+                        @Override
+                        public int getBatchSize() {
+                            return newUser.getFriends().size();
+                        }
                     }
-                }
-        );
+            );
+        }
         return newUser;
     }
 

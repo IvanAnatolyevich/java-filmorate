@@ -1,5 +1,8 @@
 package ru.yandex.model;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import jdk.jfr.Timestamp;
 import lombok.Builder;
@@ -14,6 +17,8 @@ public class User {
 
     @NotNull
     private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
     private String email;
