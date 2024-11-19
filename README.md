@@ -1,2 +1,7 @@
-# java-filmorate
-Template repository for Filmorate project.
+# Filmorate
+
+## Описание проекта
+
+Filmorate — это приложение для оценки фильмов и управления списками друзей.
+
+
