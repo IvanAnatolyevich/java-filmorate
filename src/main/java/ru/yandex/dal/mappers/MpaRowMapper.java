@@ -1,8 +1,8 @@
-package ru.yandex.storage.mappers;
+package ru.yandex.practicum.filmorate.dal.mappers;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.yandex.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 
 import java.sql.ResultSet;

@@ -1,11 +1,11 @@
-package ru.yandex.service;
+package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.storage.GenreRepository;
-import ru.yandex.exception.NotFoundException;
-import ru.yandex.model.Genre;
+import ru.yandex.practicum.filmorate.dal.GenreRepository;
+import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class GenreService {
 
     public Genre getGenreById(long id) {
         return genreRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Жанр с id=%s не найден", id)));
+                .orElseThrow(() -> new GenreNotFoundException(id));
     }
 
     public boolean existsById(long id) {

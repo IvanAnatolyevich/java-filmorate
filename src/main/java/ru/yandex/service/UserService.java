@@ -1,14 +1,14 @@
-package ru.yandex.service;
+package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.storage.FriendshipRepository;
-import ru.yandex.storage.UserRepository;
-import ru.yandex.exception.DuplicateKeyException;
-import ru.yandex.exception.NotFoundException;
-import ru.yandex.exception.ValidationException;
-import ru.yandex.model.User;
+import ru.yandex.practicum.filmorate.dal.FriendshipRepository;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.exception.DuplicateKeyException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
@@ -29,17 +29,16 @@ public class UserService {
 
     public Optional<User> updateUser(User user) {
         userRepository.findById(user.getId())
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%s не найден",
-                        user.getId())));
+                .orElseThrow(() -> new UserNotFoundException(user.getId()));
         return Optional.ofNullable(userRepository.update(user));
     }
 
     public void addFriend(long userId, long friendId) {
         log.info("Добавление друга {} к пользователю {}", friendId, userId);
         userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%s не найден", userId)));
+                .orElseThrow(() -> new UserNotFoundException(userId));
         userRepository.findById(friendId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%s не найден", friendId)));
+                .orElseThrow(() -> new UserNotFoundException(friendId));
 
         if (friendshipRepository.isFriend(userId, friendId)) {
             throw new DuplicateKeyException("Друг уже добавлен");
@@ -51,9 +50,9 @@ public class UserService {
 
     public void removeFriend(Long userId, Long friendId) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%s не найден", userId)));
+                .orElseThrow(() -> new UserNotFoundException(userId));
         userRepository.findById(friendId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%s не найден", friendId)));
+                .orElseThrow(() -> new UserNotFoundException(friendId));
         friendshipRepository.removeFriend(userId, friendId);
     }
 
@@ -67,12 +66,12 @@ public class UserService {
 
     public Optional<User> getUserById(long id) {
         return Optional.ofNullable(userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%s не найден", id))));
+                .orElseThrow(() -> new UserNotFoundException(id)));
     }
 
     public List<User> getUserFriends(Long userId) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%s не найден", userId)));
+                .orElseThrow(() -> new UserNotFoundException(userId));
         return friendshipRepository.getUserFriends(userId);
     }
 }

@@ -1,16 +1,17 @@
-package ru.yandex.service;
+package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.storage.FilmLikeRepository;
-import ru.yandex.storage.FilmRepository;
-import ru.yandex.exception.NotFoundException;
-import ru.yandex.exception.ValidationException;
-import ru.yandex.model.Film;
-import ru.yandex.model.Genre;
+import ru.yandex.practicum.filmorate.dal.FilmLikeRepository;
+import ru.yandex.practicum.filmorate.dal.FilmRepository;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -48,7 +49,7 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         filmRepository.findById(film.getId())
-                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id=%s не найден", film.getId())));
+                .orElseThrow(() -> new FilmNotFoundException(film.getId()));
         return filmRepository.update(film);
     }
 
@@ -82,14 +83,14 @@ public class FilmService {
 
     public Film getFilmById(long id) {
         return filmRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id=%s не найден",id)));
+                .orElseThrow(() -> new FilmNotFoundException(id));
     }
 
     private void validateUserAndFilm(long filmId, long userId) {
         userService.getUserById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%s не найден", userId)));
+                .orElseThrow(() -> new UserNotFoundException(userId));
         filmRepository.findById(filmId)
-                .orElseThrow(() -> new NotFoundException(String.format("Фильм с id=%s не найден", filmId)));
+                .orElseThrow(() -> new FilmNotFoundException(filmId));
     }
 }
 

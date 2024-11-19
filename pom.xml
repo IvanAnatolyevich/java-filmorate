@@ -8,7 +8,7 @@
 		<version>3.2.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>ru.yandex.practicum</groupId>
+	<groupId>ru.yandex</groupId>
 	<artifactId>filmorate</artifactId>
 	<version>1.0-SNAPSHOT</version>
 

@@ -1,9 +1,9 @@
-package ru.yandex.storage.mappers;
+package ru.yandex.practicum.filmorate.dal.mappers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.yandex.model.User;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

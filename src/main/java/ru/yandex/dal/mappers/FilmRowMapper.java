@@ -1,12 +1,12 @@
-package ru.yandex.storage.mappers;
+package ru.yandex.practicum.filmorate.dal.mappers;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.yandex.storage.GenreRepository;
-import ru.yandex.storage.MpaRepository;
-import ru.yandex.model.Film;
-import ru.yandex.model.Genre;
-import ru.yandex.model.Mpa;
+import ru.yandex.practicum.filmorate.dal.GenreRepository;
+import ru.yandex.practicum.filmorate.dal.MpaRepository;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 
 import java.sql.ResultSet;

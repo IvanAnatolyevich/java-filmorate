@@ -1,4 +1,4 @@
-package ru.yandex.model;
+package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

@@ -1,12 +1,12 @@
-package ru.yandex.service;
+package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.storage.MpaRepository;
-import ru.yandex.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.dal.MpaRepository;
+import ru.yandex.practicum.filmorate.exception.MpaNotFoundException;
 
-import ru.yandex.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class MpaService {
 
     public Mpa getMpaById(long id) {
         return mpaRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Рейтинг с id=%s не найден", id)));
+                .orElseThrow(() -> new MpaNotFoundException(id));
     }
 
     public boolean existsById(long id) {

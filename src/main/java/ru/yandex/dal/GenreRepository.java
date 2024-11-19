@@ -1,10 +1,10 @@
-package ru.yandex.storage;
+package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.storage.mappers.GenreRowMapper;
-import ru.yandex.model.Genre;
+import ru.yandex.practicum.filmorate.dal.mappers.GenreRowMapper;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.HashSet;
 import java.util.List;

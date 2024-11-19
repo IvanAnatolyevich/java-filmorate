@@ -1,13 +1,13 @@
-package ru.yandex.storage;
+package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.storage.mappers.FilmRowMapper;
-import ru.yandex.model.Film;
-import ru.yandex.model.Genre;
+import ru.yandex.practicum.filmorate.dal.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -22,6 +22,7 @@ public class FilmRepository {
     private final JdbcTemplate jdbc;
     private final FilmRowMapper mapper;
 
+    // Найти все фильмы
     public List<Film> findAll() {
         String query = "SELECT * FROM films ORDER BY id";
         return jdbc.query(query, mapper);
@@ -39,12 +40,14 @@ public class FilmRepository {
         return jdbc.query(query, mapper, count);
     }
 
+    // Найти фильм по ID
     public Optional<Film> findById(long id) {
         String query = "SELECT * FROM films WHERE id = ?";
         List<Film> films = jdbc.query(query, mapper, id);
         return films.isEmpty() ? Optional.empty() : Optional.of(films.getFirst());
     }
 
+    // Добавить новый фильм
     public Film add(Film film) {
         String sql = "INSERT INTO films (name, description, release_date, duration, mpa_rating_id) VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -63,6 +66,7 @@ public class FilmRepository {
         return film;
     }
 
+    // Обновить фильм
     public Film update(Film film) {
         String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_rating_id = ? WHERE id = ?";
         jdbc.update(sql,
@@ -76,6 +80,7 @@ public class FilmRepository {
         return film;
     }
 
+    // Удалить фильм
     public void deleteById(long id) {
         String sql = "DELETE FROM films WHERE id = ?";
         jdbc.update(sql, id);
