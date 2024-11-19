@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ContextConfiguration(classes = App.class)
-class FilmorateApplicationTests {
+public class FilmoRateApplicationTests {
 
     private Validator validator;
 
