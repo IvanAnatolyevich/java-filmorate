@@ -4,7 +4,8 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+import ru.yandex.App;
 import ru.yandex.model.Film;
 import ru.yandex.model.Mpa;
 import ru.yandex.model.User;
@@ -16,7 +17,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@ContextConfiguration(classes= App.class)
 class FilmorateApplicationTests {
 
 	private Validator validator;
