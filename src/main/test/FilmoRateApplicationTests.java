@@ -1,212 +1,131 @@
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import ru.yandex.App;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.model.Film;
+import ru.yandex.model.Mpa;
 import ru.yandex.model.User;
-import ru.yandex.storage.FilmDbStorage;
-import ru.yandex.storage.UserDbStorage;
-import ru.yandex.storage.mapper.FilmMapper;
-import ru.yandex.storage.mapper.UserMapper;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@JdbcTest
-@Import({UserDbStorage.class, FilmDbStorage.class, UserMapper.class, FilmMapper.class})
-@AutoConfigureTestDatabase
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
-@ContextConfiguration(classes = App.class)
-@DirtiesContext
+@SpringBootTest
+class FilmorateApplicationTests {
 
-class FilmoRateApplicationTests {
+	private Validator validator;
 
-    private final UserDbStorage userDbStorage;
-    private final FilmDbStorage filmDbStorage;
-    private final JdbcTemplate jdbcTemplate;
+	@BeforeEach
+	public void setup() {
+		try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+			validator = factory.getValidator();
+		}
+	}
 
-    @Test
-    void contextLoads() {
-        Long userCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM my_users", Long.class);
-        System.out.println("Количество пользователей: " + userCount);
-    }
+	//Film tests
+	@Test
+	public void shouldFailWhenFilmNameIsEmpty() {
+		Film film = new Film();
+		film.setName("");
+		film.setDescription("Какое-то описание");
+		film.setReleaseDate(LocalDate.now());
+		film.setDuration(120);
 
-    @Test
-    void testCreateUser() {
-        User user = User.builder()
-                .name("Test User")
-                .email("test@example.com")
-                .login("test_login")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
-        User createdUser = userDbStorage.createUser(user);
+		Set<ConstraintViolation<Film>> violations = validator.validate(film);
+		assertFalse(violations.isEmpty());
+	}
 
-        assertNotNull(createdUser.getId());
-        assertEquals("Test User", createdUser.getName());
-    }
+	@Test
+	public void shouldFailWhenDescriptionIsTooLong() {
+		Film film = new Film();
+		film.setName("Корректное имя");
+		film.setDescription("A".repeat(201)); // 201 chars
+		film.setReleaseDate(LocalDate.now());
+		film.setDuration(120);
 
-    @Test
-    void testUpdateUser() {
-        User user = User.builder()
-                .name("Test User")
-                .email("test@example.com")
-                .login("test_login")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
-        User createdUser = userDbStorage.createUser(user);
+		Set<jakarta.validation.ConstraintViolation<Film>> violations = validator.validate(film);
+		assertFalse(violations.isEmpty());
+	}
 
-        createdUser.setName("Updated Name");
-        User updatedUser = userDbStorage.updateUser(createdUser);
+	@Test
+	public void shouldPassWhenAllFilmFieldsAreValid() {
+		Film film = new Film();
+		film.setName("Корректное имя");
+		film.setDescription("Корректное описание");
+		film.setReleaseDate(LocalDate.now());
+		film.setDuration(120);
 
-        assertEquals("Updated Name", updatedUser.getName());
-    }
+		// Установка MPA рейтинга и множества жанров
+		Mpa mpa = new Mpa();
+		mpa.setId(1);
+		film.setMpa(mpa);
+		film.setGenres(Collections.emptySet()); // Пустой набор жанров, но он есть:)
 
-    @Test
-    void testDeleteUser() {
-        User user = User.builder()
-                .name("Test User")
-                .email("test@example.com")
-                .login("test_login")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
-        User createdUser = userDbStorage.createUser(user);
+		// Валидация фильма
+		Set<ConstraintViolation<Film>> violations = validator.validate(film);
+		assertTrue(violations.isEmpty(), "Ожидалось отсутствие ошибок валидации, но были найдены: " + violations);
+	}
 
-        userDbStorage.deleteUser(createdUser);
+	//User Tests
+	@Test
+	public void shouldFailWhenEmailIsInvalid() {
+		User user = new User();
+		user.setEmail("invalidEmail");
+		user.setLogin("validLogin");
+		user.setBirthday(LocalDate.now().minusYears(20));
 
-        List<User> users = (List<User>) userDbStorage.allUsers();
-        assertTrue(users.isEmpty());
-    }
+		Set<jakarta.validation.ConstraintViolation<User>> violations = validator.validate(user);
+		assertFalse(violations.isEmpty());
+	}
 
-    @Test
-    void testCreateFilm() {
-        Film film = Film.builder()
-                .name("Test Film")
-                .description("Test Description")
-                .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(120)
-                .genre(1)
-                .rating(1)
-                .build();
-        Film createdFilm = filmDbStorage.createFilm(film);
+	@Test
+	void shouldFailIfEmailIsBlank() {
+		User user = new User();
+		user.setEmail("");
+		user.setLogin("validLogin");
+		user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        assertNotNull(createdFilm.getId());
-        assertEquals("Test Film", createdFilm.getName());
-    }
+		Set<jakarta.validation.ConstraintViolation<User>> violations = validator.validate(user);
+		assertFalse(violations.isEmpty());
+	}
 
-    @Test
-    void testUpdateFilm() {
-        Film film = Film.builder()
-                .name("Test Film")
-                .description("Test Description")
-                .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(120)
-                .genre(1)
-                .rating(1)
-                .build();
-        Film createdFilm = filmDbStorage.createFilm(film);
+	@Test
+	public void shouldFailWhenLoginContainsSpaces() {
+		User user = new User();
+		user.setEmail("valid@email.com");
+		user.setLogin("invalid login");
+		user.setBirthday(LocalDate.now().minusYears(20));
 
-        createdFilm.setName("Updated Film");
-        Film updatedFilm = filmDbStorage.updateFilm(createdFilm);
+		Set<jakarta.validation.ConstraintViolation<User>> violations = validator.validate(user);
+		assertFalse(violations.isEmpty());
+	}
 
-        assertEquals("Updated Film", updatedFilm.getName());
-    }
+	@Test
+	public void shouldPassWhenAllUserFieldsAreValid() {
+		User user = new User();
+		user.setEmail("valid@email.com");
+		user.setLogin("validLogin");
+		user.setBirthday(LocalDate.now().minusYears(20));
 
-    @Test
-    void testDeleteFilm() {
-        Film film = Film.builder()
-                .name("Test Film")
-                .description("Test Description")
-                .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(120)
-                .genre(1)
-                .rating(1)
-                .build();
-        Film createdFilm = filmDbStorage.createFilm(film);
+		Set<jakarta.validation.ConstraintViolation<User>> violations = validator.validate(user);
+		assertTrue(violations.isEmpty());
+	}
 
-        filmDbStorage.deleteFilm(createdFilm);
+	@Test
+	void shouldFailIfBirthdayIsInTheFuture() {
+		User user = new User();
+		user.setEmail("test@example.com");
+		user.setLogin("validLogin");
+		user.setBirthday(LocalDate.now().plusDays(1));
 
-        List<Film> films = (List<Film>) filmDbStorage.allFilms();
-        assertTrue(films.isEmpty());
-    }
+		Set<jakarta.validation.ConstraintViolation<User>> violations = validator.validate(user);
+		assertFalse(violations.isEmpty());
+	}
 
-    @Test
-    void testGetUserId1() {
-        User user = User.builder()
-                .name("Test User")
-                .email("test@example.com")
-                .login("test_login")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
-        userDbStorage.createUser(user);
-        User user1 = userDbStorage.getUserId(4L);
-
-                assertEquals("Test User", user1.getName());
-    }
-
-    @Test
-    void getAllUsers() {
-        User user = User.builder()
-                .name("Test User")
-                .email("test@example.com")
-                .login("test_login")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .friends(new HashSet<>())
-                .build();
-        userDbStorage.createUser(user);
-        User user1 = User.builder()
-                .name("Test User")
-                .email("test@example.com")
-                .login("test_login")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .friends(new HashSet<>())
-                .build();
-        userDbStorage.createUser(user1);
-        List<User> users = (List<User>) userDbStorage.allUsers();
-        List<User> testUsers = new ArrayList<>();
-        testUsers.add(user);
-        testUsers.add(user1);
-        Assertions.assertArrayEquals(testUsers.toArray(), users.toArray());
-    }
-
-
-    @Test
-    void getAllFilms() {
-        Film film = Film.builder()
-                .name("Test Film")
-                .description("Test Description")
-                .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(120)
-                .genre(1)
-                .rating(1)
-                .like(0L)
-                .userLikes(new HashSet<>())
-                .build();
-        filmDbStorage.createFilm(film);
-        Film film1 = Film.builder()
-                .name("Test Film")
-                .description("Test Description")
-                .releaseDate(LocalDate.of(2000, 2, 1))
-                .duration(120)
-                .genre(1)
-                .rating(1)
-                .like(0L)
-                .userLikes(new HashSet<>())
-                .build();
-        filmDbStorage.createFilm(film1);
-        List<Film> films = (List<Film>) filmDbStorage.allFilms();
-        List<Film> testFilms = new ArrayList<>();
-        testFilms.add(film);
-        testFilms.add(film1);
-        Assertions.assertArrayEquals(testFilms.toArray(), films.toArray());
-    }
 }

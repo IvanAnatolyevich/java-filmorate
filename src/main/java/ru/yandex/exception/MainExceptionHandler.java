@@ -1,47 +1,59 @@
 package ru.yandex.exception;
 
-import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.exception.DuplicateKeyException;
+import ru.yandex.exception.NotFoundException;
+import ru.yandex.exception.ValidationException;
+
+import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-@Slf4j
 public class MainExceptionHandler {
-    @ExceptionHandler
-    public Map<String, String> handlerNotFoundException(NotFoundException ex) {
-        log.error(ex.getMessage());
-        return Map.of("errorCode", "404", "errorMessage",
-                "NOT_FOUND", "reason", ex.getMessage());
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+        return errors;
     }
 
-    @ExceptionHandler
-    public Map<String, String> handlerValidationException(ValidationException ex) {
-        log.error(ex.getMessage());
-        return Map.of("errorCode", "400", "errorMessage",
-                "BAD_REQUEST", "reason", ex.getMessage());
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleCustomValidationException(ValidationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return errors;
     }
 
-    @ExceptionHandler
-    public Map<String, String> handlerConstraintViolationException(ConstraintViolationException ex) {
-        log.error(ex.getMessage());
-        return Map.of("errorCode", "400", "errorMessage",
-                "BAD_REQUEST", "reason", ex.getMessage());
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNotFoundException(NotFoundException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return errors;
     }
 
-    @ExceptionHandler
-    public Map<String, String> handlerMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        log.error(ex.getMessage());
-        return Map.of("errorCode", "400", "errorMessage",
-                "BAD_REQUEST", "reason", ex.getMessage());
+    @ExceptionHandler(DuplicateKeyException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleDuplicateKeyException(DuplicateKeyException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", "Запись с таким ключом уже существует");
+        return errors;
     }
 
-    @ExceptionHandler
-    public Map<String, String> handlerException(Exception ex) {
-        log.error(ex.getMessage());
-        return Map.of("errorCode", "500", "errorMessage",
-                "INTERNAL_SERVER_ERROR", "reason", ex.getMessage());
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return errors;
     }
+
 }

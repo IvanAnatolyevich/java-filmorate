@@ -1,31 +1,29 @@
 package ru.yandex.model;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
-import jdk.jfr.Timestamp;
-import lombok.Builder;
 import lombok.Data;
+import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 @Data
-@Builder
+@Setter
+@Getter
 public class User {
 
-    @NotNull
-    private String name;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @NotNull
+    private long id;
+
+    @Email(message = "Некорректный формат электронной почты")
+    @NotBlank(message = "Электронная почта не может быть пустой")
     private String email;
-    @NotNull
+
+    @NotBlank(message = "Логин не может быть пустым")
+    @Pattern(regexp = "^\\S+$", message = "Логин не может содержать пробелы")
     private String login;
-    @Timestamp()
+
+    private String name;
+
+    @Past(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
-    private Set<Long> friends;
-    private int status;
 }

@@ -1,35 +1,45 @@
 package ru.yandex.model;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Builder;
+import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@Builder
+@Setter
+@Getter
 public class Film {
 
-    @NotBlank
+    private long id;
+
+    @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Size(min = 1, max = 200)
+
+    @Size(max = 200, message = "Описание фильма не может быть длиннее 200 символов")
     private String description;
-    @NotNull
+
+    @PastOrPresent(message = "Дата релиза не может быть в будущем")
     private LocalDate releaseDate;
-    @Min(1)
+
+    @Positive(message = "Продолжительность фильма должна быть положительным числом")
     private int duration;
-    private Long like;
-    private Set<Long> userLikes;
-    private int genre;
-    private int rating;
+
+    // Поле для хранения жанров фильма
+    @NotNull(message = "Жанр фильма должен быть указан")
+    private Set<Genre> genres = new HashSet<>();
+
+    // Поле для хранения рейтинга Ассоциации кинокомпаний
+    @NotNull(message = "Рейтинг фильма должен быть указан")
+    private Mpa mpa;
+
+    // Поле для хранения ID пользователей, поставивших лайк фильму
+    private Set<Long> userIds = new HashSet<>();
+
+    public int getRate() {
+        return userIds.size(); // Количество лайков
+    }
 }
